@@ -26,7 +26,7 @@ def argument_parser():
     parser.add_argument('-n', '--nodes', default='1', help='Nodes to reserve')
     parser.add_argument('-m', '--mem', default='4gb', help='Memory to reserve')
     parser.add_argument('-p', '--ppn', default='1', help='Number of processors to use')
-    parser.add_argument('-e', '--email', default=get_email(), help='Email for alerts, default assumes server ID is the same with email ID')
+    parser.add_argument('-e', '--email', default=get_email(), help='Email for alerts, default default= EMAIL variable as the environmental variable. Can set as `export EMAIL=youremail@email.com`')
     parser.add_argument('-s', '--script_dir', default=os.getcwd(), help='directory to write qsub script')
     parser.add_argument('-i', '--script_name', default='submission.sh', help='name for submitter script')
     parser.add_argument('-d', '--dryrun', default=0, type=int,  help='Create script, but do not execute')
