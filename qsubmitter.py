@@ -1,4 +1,4 @@
-#!/home/users/cjyoon/anaconda3/bin/python
+#!/opt/python/3.7.2/bin/python3
 ''' 
 Dec 13 2017 Chris Yoon (cjyoon@kaist.ac.kr)
 script that will create a qsub submission script and submit jobs
@@ -11,6 +11,14 @@ import argparse
 import re
 import shlex
 
+
+def get_email():
+    try:
+        email = os.environ['EMAIL']
+    except KeyError:
+        email = ''
+    return email
+
 def argument_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--command', nargs='*', required=True, help='Command line to be executed')
@@ -18,7 +26,7 @@ def argument_parser():
     parser.add_argument('-n', '--nodes', default='1', help='Nodes to reserve')
     parser.add_argument('-m', '--mem', default='4gb', help='Memory to reserve')
     parser.add_argument('-p', '--ppn', default='1', help='Number of processors to use')
-    parser.add_argument('-e', '--email', default='julab.job@gmail.com', help='Email for alerts')
+    parser.add_argument('-e', '--email', default=get_email(), help='Email for alerts, default assumes server ID is the same with email ID')
     parser.add_argument('-s', '--script_dir', default=os.getcwd(), help='directory to write qsub script')
     parser.add_argument('-i', '--script_name', default='submission.sh', help='name for submitter script')
     parser.add_argument('-d', '--dryrun', default=0, type=int,  help='Create script, but do not execute')
@@ -40,7 +48,12 @@ def submission_header(que, nodes, mem, ppn, email, script_name, log_dir):
     '''creates string for the header PBS options'''
     logfile = script_name + '.log' 
     absolute_logfile = os.path.abspath(os.path.join(log_dir, logfile))
-    header = f'#!/bin/bash\n#PBS -l nodes={nodes}:ppn={ppn},mem={mem}\n#PBS -M {email}\n#PBS -m abe\n#PBS -j oe\n#PBS -q {que}\n#PBS -o {absolute_logfile}\ncd $PBS_O_WORKDIR\n'
+    # changed stdout/err to /dev/null 2018.06.08
+    email_string = ''
+    if len(email) !=0:
+        email_string=f'#PBS -M {email}\n'
+    header = f'#!/bin/bash\n#PBS -l nodes={nodes}:ppn={ppn},mem={mem}\n{email_string}#PBS -m ae\n#PBS -j oe\n#PBS -q {que}\n#PBS -o /dev/null\n#PBS -e /dev/null\ncd $PBS_O_WORKDIR\n'
+    
     return header
  
 
